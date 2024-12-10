@@ -362,9 +362,6 @@ class GPUModelRunner:
             for input_id in encoder_input_ids:
                 mm_inputs.append(req_state.mm_inputs[input_id])
                 req_input_ids.append((req_id, input_id))
-        batched_mm_inputs = MultiModalKwargs.batch(mm_inputs)
-        batched_mm_inputs = MultiModalKwargs.as_kwargs(batched_mm_inputs,
-                                                       device=self.device)
 
         # Run the encoder.
         # `encoder_outputs` is either of the following:
@@ -373,8 +370,17 @@ class GPUModelRunner:
         # 2. A list (length: num_images) of tensors, each of shape
         # [feature_size, hidden_size] in case when the feature size is
         # dynamic depending on input images.
-        encoder_outputs = self.model.get_multimodal_embeddings(
-            **batched_mm_inputs)
+        if self.model_config.hf_config.model_type == 'llava_tianshu':
+            input_list = []
+            for image_dict in mm_inputs:
+                input_list.append(list(image_dict.values())[0].to(self.device, non_blocking=True))
+            encoder_outputs = self.model.get_multimodal_embeddings(input_list)
+        else:
+            batched_mm_inputs = MultiModalKwargs.batch(mm_inputs)
+            batched_mm_inputs = MultiModalKwargs.as_kwargs(batched_mm_inputs,
+                                                        device=self.device)
+            encoder_outputs = self.model.get_multimodal_embeddings(
+                **batched_mm_inputs)
 
         # Cache the encoder outputs.
         for (req_id, input_id), output in zip(req_input_ids, encoder_outputs):

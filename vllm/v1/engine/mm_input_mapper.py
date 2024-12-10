@@ -28,12 +28,19 @@ class MMInputMapper:
 
         # Process each image input separately so that later we can schedule
         # them in a fine-grained manner.
-        mm_inputs: List[MultiModalKwargs] = []
-        num_images = len(image_inputs)
-        for i in range(num_images):
+        if self.model_config.hf_config.model_type == 'llava_tianshu':
             mm_input = self.multi_modal_input_mapper(
-                {"image": [image_inputs[i]]},
+                {"image": [image_inputs[0]]},
                 mm_processor_kwargs=mm_processor_kwargs,
             )
-            mm_inputs.append(mm_input)
+            mm_inputs = [{k: v} for k, v in mm_input.items()]
+        else:
+            mm_inputs: List[MultiModalKwargs] = []
+            num_images = len(image_inputs)
+            for i in range(num_images):
+                mm_input = self.multi_modal_input_mapper(
+                    {"image": [image_inputs[i]]},
+                    mm_processor_kwargs=mm_processor_kwargs,
+                )
+                mm_inputs.append(mm_input)
         return mm_inputs

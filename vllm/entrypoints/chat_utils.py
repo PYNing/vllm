@@ -769,7 +769,8 @@ def _parse_chat_message_content_parts(
     texts = cast(List[str], content)
     text_prompt = "\n".join(texts)
     mm_placeholder_counts = mm_parser.mm_placeholder_counts()
-    if mm_placeholder_counts:
+    # if mm_placeholder_counts:
+    if False:
         text_prompt = _get_full_multimodal_text_prompt(mm_placeholder_counts,
                                                        text_prompt)
     return [ConversationMessage(role=role, content=text_prompt)]

@@ -239,6 +239,11 @@ class EngineCoreProc(EngineCore):
     @staticmethod
     def run_engine_core(*args, **kwargs):
         """Launch EngineCore busy loop in background process."""
+        import sys
+        sys.path.append("/vllm_model")
+        from modeling_llava_tianshu import TianshuLlavaForCausalLM
+        from vllm import ModelRegistry
+        ModelRegistry.register_model("TianshuLlavaForCausalLM", TianshuLlavaForCausalLM)
 
         try:
             engine_core = EngineCoreProc(*args, **kwargs)

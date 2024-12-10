@@ -80,7 +80,9 @@ def fetch_image(image_url: str,
 
     By default, the image is converted into RGB format.
     """
-    if image_url.startswith('http'):
+    if image_url.startswith('redis:'):
+        return image_url
+    elif image_url.startswith('http'):
         image_raw = global_http_connection.get_bytes(
             image_url,
             timeout=envs.VLLM_IMAGE_FETCH_TIMEOUT,
@@ -107,7 +109,9 @@ async def async_fetch_image(image_url: str,
 
     By default, the image is converted into RGB format.
     """
-    if image_url.startswith('http'):
+    if image_url.startswith('redis:'):
+        return image_url
+    elif image_url.startswith('http'):
         image_raw = await global_http_connection.async_get_bytes(
             image_url,
             timeout=envs.VLLM_IMAGE_FETCH_TIMEOUT,
